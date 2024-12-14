@@ -1,6 +1,11 @@
 # YESS 프론트엔드 사전과제
 
-- 경로: https://yess-frontend-test.vercel.app
+- preview 경로: https://yess-frontend-test.vercel.app
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/2e29e6d7-3887-4cbd-8cd8-485861deebf6" alt="cat viewer" width="800">
+  <img src="https://github.com/user-attachments/assets/83773130-da99-4ba4-a86f-851ce9030f57" alt="working hour" width="800">
+</div>
 
 ## 설명
 
