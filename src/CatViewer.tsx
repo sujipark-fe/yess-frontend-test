@@ -65,7 +65,7 @@ function CatViewer() {
     sm: 450,
   };
 
-  const [error, setError] = useState<error>({ code: 0, msg: '' });
+  const [error, setError] = useState<error>(null);
 
   const [imgs, setImgs] = useState<Image[]>([]);
   const [slicedData, setSlicedData] = useState<any[]>([]);
@@ -110,7 +110,7 @@ function CatViewer() {
 
   // 데이터 페치
   const fetchData = async () => {
-    if (isLoading) return;
+    if (isLoading || error) return;
     setIsLoading(true);
 
     axios
@@ -134,7 +134,7 @@ function CatViewer() {
           setPage((prevPage) => prevPage + 1);
 
           // 에러 데이터 초기화
-          setError({ code: 0, msg: '' });
+          setError(null);
         }
       })
       .catch(function (error) {
@@ -182,8 +182,6 @@ function CatViewer() {
   }, [imgs, columnCount]);
 
   useEffect(() => {
-    fetchData();
-
     // 첫 로드 시 그리드 크기 확인
     calculateColumnCount();
 
@@ -204,7 +202,7 @@ function CatViewer() {
 
       <div className="grid">
         <div className="grid-container" data-column={columnCount} ref={gridRef}>
-          {!error.msg &&
+          {!error &&
             slicedData &&
             slicedData.length > 0 &&
             slicedData.map((columnData: any[], index: number) => {
@@ -220,6 +218,7 @@ function CatViewer() {
                 </div>
               );
             })}
+
           <div ref={observerRef} style={{ height: '100px' }} />
         </div>
         {isLoading && <Loader />}
