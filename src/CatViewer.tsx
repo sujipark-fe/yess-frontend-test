@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import ImageLayer from './components/ImageLayer';
 import Loader from './assets/images/loading.svg?react';
-import './assets/style/cat.scss';
 
-interface Image {
+export interface Image {
   breeds: [];
   categories?: [];
   id: number;
@@ -17,11 +17,47 @@ interface error {
   msg: string;
 }
 
+// Intersection Observer 설정
+const useInfiniteScroll = (fetchData: () => void, isLoading: boolean) => {
+  const IsInitialData = useRef(false);
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          fetchData();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [isLoading, fetchData]);
+
+  useEffect(() => {
+    if (!IsInitialData.current) {
+      fetchData();
+      IsInitialData.current = true;
+    }
+  }, [fetchData]);
+
+  return { observerRef };
+};
+
 function CatViewer() {
   const IMG_API = 'https://api.thecatapi.com/v1/images/search';
   const API_KEY = 'live_k77YJ1Sa3RsUfqEwbuKzrsevPSBW7iCoeeTZKSuj0ahl51TyYwbMXoLhVwwyIIvF';
   const limit = 30;
-  const [arrayNum, setArrayNum] = useState(3);
+  const [columnCount, setColumnCount] = useState(3);
 
   const BREAKPOINT = {
     lg: 1200,
@@ -37,15 +73,14 @@ function CatViewer() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [openImage, setOpenImage] = useState<Image | null>(null);
+
   const gridRef = useRef<any>(null);
-  const observerRef = useRef<HTMLDivElement>(null);
 
   const sliceByColumns = (data: Image[], columnCount: number) => {
-    const chunkSizes = { 1: 30, 2: 15, 3: 10 };
-    const chunkSize = chunkSizes[columnCount];
-
     const result: Image[][] = Array.from({ length: columnCount }, () => []);
-
     data.forEach((item: Image, index: number) => {
       const targetIndex = index % columnCount;
       result[targetIndex].push(item);
@@ -54,15 +89,15 @@ function CatViewer() {
     return result;
   };
 
-  const checkGridSize = () => {
+  // 화면 리사이즈 시 컬럼 수 업데이트
+  const calculateColumnCount = () => {
     const containerWidth = gridRef.current.offsetWidth;
-
     if (containerWidth >= BREAKPOINT.md) {
-      setArrayNum(3);
+      setColumnCount(3); // 750 이상: 3 컬럼
     } else if (containerWidth >= BREAKPOINT.sm) {
-      setArrayNum(2);
+      setColumnCount(2); // 450 이상: 2 컬럼
     } else {
-      setArrayNum(1);
+      setColumnCount(1); // 450 미만: 1 컬럼
     }
   };
 
@@ -118,48 +153,46 @@ function CatViewer() {
       });
   };
 
-  // Intersection Observer 설정
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchData();
-        }
-      },
-      { rootMargin: '100px' }
-    );
+  // 이미지 클릭 시 전체화면 레이어 오픈
+  const openModal = (image: Image) => {
+    setIsClosing(false);
+    setIsModalOpen(true);
+    setOpenImage(image);
+  };
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
+  // 이미지 전체화면 레이어 닫기
+  const closeModal = () => {
+    setIsClosing(true);
 
-    return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
-      }
-    };
-  }, [page, isLoading]);
+    setTimeout(() => {
+      setIsModalOpen(false);
+      setOpenImage(null);
+      setIsClosing(false);
+    }, 300);
+  };
+
+  const { observerRef } = useInfiniteScroll(fetchData, isLoading);
 
   useEffect(() => {
     console.log(slicedData);
   }, [slicedData]);
 
   useEffect(() => {
-    setSlicedData(sliceByColumns(imgs, arrayNum));
-  }, [imgs, arrayNum]);
+    setSlicedData(sliceByColumns(imgs, columnCount));
+  }, [imgs, columnCount]);
 
   useEffect(() => {
     fetchData();
 
     // 첫 로드 시 그리드 크기 확인
-    checkGridSize();
+    calculateColumnCount();
 
     // 화면 리사이즈 이벤트 리스너 추가
-    window.addEventListener('resize', checkGridSize);
+    window.addEventListener('resize', calculateColumnCount);
 
     // 컴포넌트가 언마운트될 때 리스너 제거
     return () => {
-      window.removeEventListener('resize', checkGridSize);
+      window.removeEventListener('resize', calculateColumnCount);
     };
   }, []);
 
@@ -170,30 +203,29 @@ function CatViewer() {
       {!isLoading && error && <div>{error.msg}</div>}
 
       <div className="grid">
-        <div className="grid-container" data-column={arrayNum} ref={gridRef}>
-          {
-            // !isLoading &&
-            !error.msg &&
-              slicedData &&
-              slicedData.length > 0 &&
-              slicedData.map((columnData: any[], index: number) => {
-                return (
-                  <div className="grid-column" key={index}>
-                    {columnData.map((img: Image, index: number) => {
-                      return (
-                        <div className="grid-item" key={index} data-index={index}>
-                          <img src={img.url} alt={`${img.id}`} loading="lazy" width={img.width} height={img.height} />
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })
-          }
-          <div ref={observerRef} style={{ height: '20px' }} />
+        <div className="grid-container" data-column={columnCount} ref={gridRef}>
+          {!error.msg &&
+            slicedData &&
+            slicedData.length > 0 &&
+            slicedData.map((columnData: any[], index: number) => {
+              return (
+                <div className="grid-column" key={index}>
+                  {columnData.map((img: Image, index: number) => {
+                    return (
+                      <div className="grid-item" key={index} data-index={index} onClick={() => openModal(img)}>
+                        <img src={img.url} alt={`${img.id}`} loading="lazy" width={img.width} height={img.height} />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          <div ref={observerRef} style={{ height: '100px' }} />
         </div>
         {isLoading && <Loader />}
       </div>
+
+      <ImageLayer isModalOpen={isModalOpen} isClosing={isClosing} openImage={openImage} closeModal={closeModal} />
     </div>
   );
 }
