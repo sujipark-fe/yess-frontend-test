@@ -5,25 +5,17 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@uiComponents/*": ["src/components/UI/*"],
-      "@store/*": ["src/store/*"],
-      "@api/*": ["src/api/*"],
-      "@common/*": ["src/common/*"],
-      "@assets/*": ["src/assets/*"],
-      "@scss/*": ["src/assets/scss/*"],
-      "@pages/*": ["src/pages/*"]
+      "src/*": ["src/*"]
     },
-    "types": ["jest"],
     "typeRoots": ["./src/types/**", "./node_modules/@types", "./node_modules/types"],
-    "moduleResolution": "node",
-    "target": "ES2018",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["es2018", "dom"],
     "allowJs": true,
     "checkJs": false,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "types", "src/types/index.d.ts", "__mocks__"],
+  "include": ["src", "types"],
   "skipLibCheck": true
 }

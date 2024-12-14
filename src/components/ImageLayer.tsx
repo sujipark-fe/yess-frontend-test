@@ -1,4 +1,4 @@
-import { Image } from '@/CatViewer';
+import { Image } from 'src/CatViewer';
 import { useEffect, useState } from 'react';
 
 interface ImageLayerType {
