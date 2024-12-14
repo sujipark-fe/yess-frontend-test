@@ -62,7 +62,7 @@ function CatViewer() {
   const BREAKPOINT = {
     lg: 1200,
     md: 750,
-    sm: 450,
+    sm: 500,
   };
 
   const [error, setError] = useState<error>(null);
@@ -95,9 +95,9 @@ function CatViewer() {
     if (containerWidth >= BREAKPOINT.md) {
       setColumnCount(3); // 750 이상: 3 컬럼
     } else if (containerWidth >= BREAKPOINT.sm) {
-      setColumnCount(2); // 450 이상: 2 컬럼
+      setColumnCount(2); // 500 이상: 2 컬럼
     } else {
-      setColumnCount(1); // 450 미만: 1 컬럼
+      setColumnCount(1); // 500 미만: 1 컬럼
     }
   };
 
@@ -218,9 +218,8 @@ function CatViewer() {
                 </div>
               );
             })}
-
-          <div ref={observerRef} style={{ height: '100px' }} />
         </div>
+        <div ref={observerRef} style={{ height: '100px' }} />
         {isLoading && <Loader />}
       </div>
 
