@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "rootDir": "./src",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@uiComponents/*": ["src/components/UI/*"],
+      "@store/*": ["src/store/*"],
+      "@api/*": ["src/api/*"],
+      "@common/*": ["src/common/*"],
+      "@assets/*": ["src/assets/*"],
+      "@scss/*": ["src/assets/scss/*"],
+      "@pages/*": ["src/pages/*"]
+    },
+    "types": ["jest"],
+    "typeRoots": ["./src/types/**", "./node_modules/@types", "./node_modules/types"],
+    "moduleResolution": "node",
+    "target": "ES2018",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src", "types", "src/types/index.d.ts", "__mocks__"],
+  "skipLibCheck": true
+}
