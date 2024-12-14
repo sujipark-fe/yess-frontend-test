@@ -1,5 +1,7 @@
 # YESS 프론트엔드 사전과제
 
+- 경로: https://yess-frontend-test.vercel.app
+
 ## 설명
 
 개발 언어로는 React, TypeScript를 사용하였습니다.
