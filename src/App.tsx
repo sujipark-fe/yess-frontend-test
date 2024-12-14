@@ -26,6 +26,7 @@ function App() {
           </ul>
         </nav>
         <Routes>
+          <Route path="/" element={<CatViewer />} />
           <Route path="/cat-viewer" element={<CatViewer />} />
           <Route path="/working-hour" element={<WorkingHours />} />
         </Routes>
